@@ -4,7 +4,73 @@ from map import rooms
 from player import *
 from items import *
 from gameparser import *
+import time
 
+def check_win(room, items):
+    item_check = False
+    room_check = False
+    inv_length = len(items)
+    x = 1
+
+    
+    if room == rooms["Office"]:
+        room_check = True
+    else:
+        pass
+
+    for x in range(0, inv_length):
+        if items[x]["id"] == "handbook":
+            item_check = True
+        else:
+            pass
+    if item_check == True and room_check == True:
+        print("------------------------")
+        print("\n")
+        print("YOU HAVE BEATEN THE GAME")
+        print("\n")
+        print("------------------------")
+        time.sleep(1000000)
+    else:
+        return(False)
+    
+
+    
+
+def check_mass(item, max_mass=1):
+    global inventory
+    global current_mass
+    total_mass = 0
+    inv_length = len(inventory)
+    dict = None
+    if item == "id":
+        dict = item_id
+    elif item == "laptop":
+        dict = item_laptop
+    elif item == "money":
+        dict = item_money
+    elif item == "biscuits":
+        dict = item_biscuits
+    elif item == "pen":
+        dict = item_pen
+    elif item == "handbook":
+        dict = item_handbook
+    else:
+        return(False)
+    
+        
+
+    for x in range(0,inv_length):
+        current_mass += inventory[x]["mass"]
+
+    current_mass += dict["mass"]
+
+    if int(current_mass) > max_mass:
+        current_mass -= dict["mass"]
+        return(False)
+    else:
+        return(True)
+        
+    
 
 
 def list_of_items(items):
@@ -321,13 +387,18 @@ def execute_take(item_id):
     "You cannot take that."
     """
     global inventory
-    
-    for item in current_room["items"]:
-        if item_id == item["id"]:
-            inventory.append(item)
-            break
-        else:
-            print("You cannot take that.")
+    over_mass = False
+    over_mass = check_mass(item_id)
+
+    if over_mass == True:
+        for item in current_room["items"]:
+            if item_id == item["id"]:
+                inventory.append(item)
+                break
+            else:
+                print("You cannot take that.")
+    else:
+        print("You are carrying too much stuff")
             
         
             
@@ -393,8 +464,10 @@ def menu(exits, room_items, inv_items):
     function before being returned.
 
     """
-
+    global current_room
     # Display menu
+    check_win(current_room, inv_items)
+    
     print_menu(exits, room_items, inv_items)
 
     # Read player's input
